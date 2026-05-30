@@ -1,6 +1,7 @@
 # Custom Switch
 
 how to use:
+
 in your <head> tag add:
 ```html
 <script src="custom-switch.js" defer></script>
