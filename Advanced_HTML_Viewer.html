@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Advanced HTML Viewer</title>
+
+<!-- CODEMIRROR -->
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css"/>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css"/>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/html-hint.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/css-hint.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/javascript-hint.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+
+*,*::before,*::after{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+:root{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --border:#30363d;
+  --accent:#2563eb;
+  --text:#e6edf3;
+  --muted:#7d8590;
+  --active:#1f3a6e;
+  --active-text:#93c5fd;
+  --folder:#e3b341;
+}
+
+html,body{
+  height:100%;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Segoe UI',system-ui,sans-serif;
+  font-size:13px;
+}
+
+body{
+  display:flex;
+}
+
+#sidebar{
+  width:260px;
+  min-width:160px;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+.s-head{
+  padding:11px 10px 8px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+  color:var(--muted);
+  text-transform:uppercase;
+  border-bottom:1px solid var(--border);
+}
+
+.s-actions{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  padding:7px 6px;
+  border-bottom:1px solid var(--border);
+}
+
+.btn{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 9px;
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:5px;
+  color:var(--text);
+  cursor:pointer;
+  font-size:12px;
+}
+
+.btn:hover{
+  background:#21262d;
+  border-color:#6e7681;
+}
+
+#tree{
+  flex:1;
+  overflow:auto;
+  padding:4px 0;
+}
+
+.t-folder{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:3px 6px;
+  cursor:pointer;
+  color:var(--folder);
+  font-size:12px;
+  font-weight:600;
+  user-select:none;
+  white-space:nowrap;
+  border-radius:4px;
+}
+
+.t-folder:hover{
+  background:#21262d;
+}
+
+.t-caret{
+  font-size:9px;
+  color:var(--muted);
+  display:inline-block;
+  transition:transform .15s;
+  width:10px;
+  text-align:center;
+}
+
+.t-folder.open > .t-caret{
+  transform:rotate(90deg);
+}
+
+.t-children.closed{
+  display:none;
+}
+
+.t-file{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:3px 6px;
+  cursor:pointer;
+  color:var(--muted);
+  font-size:12px;
+  white-space:nowrap;
+  border-radius:4px;
+}
+
+.t-file:hover{
+  background:#21262d;
+  color:var(--text);
+}
+
+.t-file.active{
+  background:var(--active);
+  color:var(--active-text);
+}
+
+#main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+
+.topbar{
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+}
+
+.badge{
+  background:#21262d;
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:2px 7px;
+  font-size:11px;
+  color:var(--muted);
+  max-width:500px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.ibtn{
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:5px;
+  color:var(--muted);
+  cursor:pointer;
+  padding:3px 8px;
+  font-size:12px;
+}
+
+.ibtn:hover{
+  background:#21262d;
+  color:var(--text);
+}
+
+#split{
+  flex:1;
+  display:flex;
+  overflow:hidden;
+}
+
+#editorPane{
+  width:50%;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+#previewPane{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:#fff;
+}
+
+#previewPane.fullscreen{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+}
+
+#editorMount{
+  flex:1;
+  overflow:hidden;
+}
+
+.CodeMirror{
+  height:100%!important;
+  background:#0d1117!important;
+  font-size:13px;
+}
+
+iframe{
+  flex:1;
+  width:100%;
+  border:none;
+}
+
+.ph{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  color:var(--muted);
+}
+
+body.drag-over::after{
+  content:'Rilascia qui';
+  position:fixed;
+  inset:0;
+  background:rgba(37,99,235,.12);
+  border:2px dashed var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  color:var(--accent);
+  z-index:999;
+}
+
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+
+  <div class="s-head">
+    📁 HTML Viewer
+  </div>
+
+  <div class="s-actions">
+    <button class="btn" id="btnFolder">📂 Importa Cartella</button>
+    <button class="btn" id="btnFile">📄 Importa File</button>
+    <button class="btn" id="btnNewHtml">➕ Nuovo HTML</button>
+    <button class="btn" id="btnExportOne">📄 Esporta File</button>
+    <button class="btn" id="btnZip">🗜 Esporta ZIP</button>
+    <button class="btn" id="btnExportFolder">💾 Esporta Cartella</button>
+  </div>
+
+  <div id="tree">
+    <div class="ph">
+      <span>Nessun file caricato</span>
+    </div>
+  </div>
+
+</div>
+
+<div id="main">
+
+  <div class="topbar">
+
+    <span class="badge" id="fileName">
+      Nessun file
+    </span>
+
+    <div>
+      <button class="ibtn" id="btnFS">⛶</button>
+      <button class="ibtn" id="btnRefresh">↻</button>
+    </div>
+
+  </div>
+
+  <div id="split">
+
+    <div id="editorPane">
+
+      <div class="ph" id="editorPH">
+        <span>Apri un file</span>
+      </div>
+
+      <div id="editorMount" style="display:none;"></div>
+
+    </div>
+
+    <div id="previewPane">
+
+      <div class="ph" id="previewPH">
+        <span>Preview qui</span>
+      </div>
+
+      <iframe id="preview" style="display:none;"></iframe>
+
+    </div>
+
+  </div>
+
+</div>
+
+<input type="file" id="inputFolder" webkitdirectory multiple style="display:none"/>
+<input type="file" id="inputFile" multiple style="display:none"/>
+
+<script>
+
+/* =========================
+   STATE
+========================= */
+
+let files = {};
+let current = null;
+let rootPfx = '';
+const dataUrlCache = {};
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const treeEl = document.getElementById('tree');
+const fileNameEl = document.getElementById('fileName');
+const previewEl = document.getElementById('preview');
+const previewPane = document.getElementById('previewPane');
+const previewPH = document.getElementById('previewPH');
+const editorPH = document.getElementById('editorPH');
+const editorMount = document.getElementById('editorMount');
+
+/* =========================
+   CODEMIRROR
+========================= */
+
+const cm = CodeMirror(editorMount,{
+  mode:'htmlmixed',
+  theme:'material-darker',
+  lineNumbers:true,
+  autoCloseBrackets:true,
+  matchBrackets:true,
+
+  extraKeys:{
+    "Ctrl-Space":"autocomplete"
+  }
+});
+
+/* =========================
+   AUTOCOMPLETE
+========================= */
+
+function getCustomWords(){
+  const txt = cm.getValue();
+  const words = new Set();
+
+  (txt.match(/[A-Za-z_$][\w$]{2,}/g) || []).forEach(w => words.add(w));
+
+  return [...words];
+}
+
+function customHint(editor){
+  const cur = editor.getCursor();
+  const line = editor.getLine(cur.line);
+  const before = line.slice(0, cur.ch);
+
+  if(before.includes(';') && before.lastIndexOf(';') > before.lastIndexOf('<')){
+    return null;
+  }
+
+  const token = editor.getTokenAt(cur);
+  const term = token.string || '';
+
+  let list = [];
+
+  getCustomWords().forEach(w => {
+    if(!term || w.toLowerCase().includes(term.toLowerCase())){
+      list.push(w);
+    }
+  });
+
+  list.sort((a,b)=>{
+    const aa = a.toLowerCase();
+    const bb = b.toLowerCase();
+    const t = term.toLowerCase();
+
+    const ap = aa.startsWith(t) ? 0 : 1;
+    const bp = bb.startsWith(t) ? 0 : 1;
+
+    return ap - bp || aa.localeCompare(bb);
+  });
+
+  return {
+    list,
+    from: CodeMirror.Pos(cur.line, token.start),
+    to: CodeMirror.Pos(cur.line, token.end)
+  };
+}
+
+cm.on('inputRead', (instance, change) => {
+
+  if(change.text[0] === ' '){
+    return;
+  }
+
+  const cur = instance.getCursor();
+  const line = instance.getLine(cur.line).slice(0, cur.ch);
+
+  if(line.trim().endsWith(';')){
+    return;
+  }
+
+  instance.showHint({
+    completeSingle:false,
+    hint: customHint
+  });
+});
+
+CodeMirror.on(window,'load',()=>{
+  CodeMirror.commands.autocomplete = cm => cm.showHint({
+    completeSingle:false,
+    hint: customHint
+  });
+});
+
+/* =========================
+   IMPORT
+========================= */
+
+document.getElementById('btnFolder').onclick = () => {
+  document.getElementById('inputFolder').click();
+};
+
+document.getElementById('btnFile').onclick = () => {
+  document.getElementById('inputFile').click();
+};
+
+document.getElementById('inputFolder').onchange = async e => {
+  await loadFiles(Array.from(e.target.files));
+};
+
+document.getElementById('inputFile').onchange = async e => {
+  await loadFiles(Array.from(e.target.files));
+};
+
+/* =========================
+   LOAD FILES
+========================= */
+
+async function loadFiles(fileArr){
+
+  files = {};
+  current = null;
+
+  const paths = fileArr.map(f => f.webkitRelativePath || f.name);
+
+  const first = paths[0] || '';
+  const slash = first.indexOf('/');
+
+  rootPfx = slash > 0
+    ? first.slice(0, slash + 1)
+    : '';
+
+  await Promise.all(fileArr.map(async f => {
+
+    const fullPath = f.webkitRelativePath || f.name;
+
+    const content = isText(f.name)
+      ? await f.text()
+      : null;
+
+    files[fullPath] = {
+      content,
+      file:f
+    };
+
+  }));
+
+  buildTree();
+
+  const firstHtml = Object.keys(files).find(p =>
+    /\.(html|htm)$/i.test(p)
+  );
+
+  if(firstHtml){
+
+    const el = treeEl.querySelector(
+      `[data-path="${CSS.escape(firstHtml)}"]`
+    );
+
+    if(el){
+      openFile(firstHtml, el);
+    }
+  }
+}
+
+function isText(name){
+  return /\.(html|htm|css|js|json|svg|txt|md|xml)$/i.test(name);
+}
+
+/* =========================
+   TREE
+========================= */
+
+function buildTree(){
+
+  treeEl.innerHTML = '';
+
+  const allPaths = Object.keys(files).sort();
+
+  const root = {
+    _files:[],
+    _dirs:{}
+  };
+
+  for(const fullPath of allPaths){
+
+    const display = rootPfx
+      ? fullPath.slice(rootPfx.length)
+      : fullPath;
+
+    const parts = display.split('/').filter(Boolean);
+
+    let node = root;
+
+    for(let i=0;i<parts.length-1;i++){
+
+      const seg = parts[i];
+
+      if(!node._dirs[seg]){
+        node._dirs[seg] = {
+          _files:[],
+          _dirs:{}
+        };
+      }
+
+      node = node._dirs[seg];
+    }
+
+    node._files.push(fullPath);
+  }
+
+  treeEl.appendChild(
+    renderFolder(root,'files',0)
+  );
+}
+
+function renderFolder(node,label,depth){
+
+  const wrap = document.createElement('div');
+
+  const row = document.createElement('div');
+
+  row.className = 't-folder open';
+
+  row.style.paddingLeft = (depth * 14 + 4) + 'px';
+
+  row.innerHTML = `
+    <span class="t-caret">▶</span>
+    <span>📁</span>
+    <span>${label}</span>
+  `;
+
+  const kids = document.createElement('div');
+  kids.className = 't-children';
+
+  for(const [name,sub] of Object.entries(node._dirs)){
+
+    kids.appendChild(
+      renderFolder(sub,name,depth+1)
+    );
+  }
+
+  for(const fullPath of node._files){
+
+    kids.appendChild(
+      renderFile(fullPath,depth+1)
+    );
+  }
+
+  row.onclick = () => {
+
+    const open = row.classList.toggle('open');
+
+    kids.classList.toggle('closed', !open);
+  };
+
+  wrap.appendChild(row);
+  wrap.appendChild(kids);
+
+  return wrap;
+}
+
+function renderFile(fullPath,depth){
+
+  const name = fullPath.split('/').pop();
+
+  const el = document.createElement('div');
+
+  el.className = 't-file';
+
+  el.dataset.path = fullPath;
+
+  el.style.paddingLeft = (depth * 14 + 4) + 'px';
+
+  el.innerHTML = `
+    <span>📄</span>
+    <span>${name}</span>
+  `;
+
+  el.onclick = () => openFile(fullPath,el);
+
+  return el;
+}
+
+/* =========================
+   OPEN FILE
+========================= */
+
+function openFile(fullPath,el){
+
+  current = fullPath;
+
+  document.querySelectorAll('.t-file')
+    .forEach(f => f.classList.remove('active'));
+
+  el?.classList?.add('active');
+
+  fileNameEl.textContent = fullPath;
+
+  const { content } = files[fullPath];
+
+  if(content !== null){
+
+    editorPH.style.display = 'none';
+    editorMount.style.display = 'block';
+
+    cm.setValue(content);
+
+  }else{
+
+    editorMount.style.display = 'none';
+    editorPH.style.display = 'flex';
+  }
+
+  updatePreview();
+}
+
+/* =========================
+   PATH RESOLVER
+========================= */
+
+function resolvePath(fromPath, rawVal){
+
+  const val = rawVal
+    .split('?')[0]
+    .split('#')[0]
+    .trim();
+
+  if(!val) return null;
+
+  let candidate;
+
+  if(val.startsWith('/')){
+
+    candidate = rootPfx + val.slice(1);
+
+  }else{
+
+    const dir = fromPath.includes('/')
+      ? fromPath.slice(0, fromPath.lastIndexOf('/') + 1)
+      : '';
+
+    candidate = dir + val;
+  }
+
+  const parts = candidate.split('/');
+
+  const out = [];
+
+  for(const p of parts){
+
+    if(p === '..'){
+      out.pop();
+    }
+    else if(p && p !== '.'){
+      out.push(p);
+    }
+  }
+
+  const r = out.join('/');
+
+  if(files[r]) return r;
+
+  return null;
+}
+
+/* =========================
+   DATA URL
+========================= */
+
+function toDataUrl(fullPath){
+
+  if(dataUrlCache[fullPath]){
+    return Promise.resolve(dataUrlCache[fullPath]);
+  }
+
+  return new Promise(res => {
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+
+      dataUrlCache[fullPath] = reader.result;
+
+      res(reader.result);
+    };
+
+    reader.readAsDataURL(files[fullPath].file);
+  });
+}
+
+/* =========================
+   PATCH HTML
+========================= */
+
+async function patchHtml(html, fromPath){
+
+  const RE = /(?:src|href|action)\s*=\s*["']([^"']+)["']|url\s*\(\s*["']?([^"')]+)["']?\s*\)/gi;
+
+  const refs = new Map();
+
+  let m;
+
+  while((m = RE.exec(html)) !== null){
+
+    const raw = (m[1] || m[2] || '').trim();
+
+    if(
+      !raw ||
+      /^(https?:|data:|blob:|#|javascript:|mailto:)/i.test(raw)
+    ){
+      continue;
+    }
+
+    const resolved = resolvePath(fromPath, raw);
+
+    if(resolved){
+      refs.set(raw, resolved);
+    }
+  }
+
+  const replacements = new Map();
+
+  await Promise.all(
+    [...refs.entries()].map(async ([raw,resolved]) => {
+
+      replacements.set(
+        raw,
+        await toDataUrl(resolved)
+      );
+    })
+  );
+
+  return html.replace(RE, (match, attrVal, urlVal) => {
+
+    const raw = (attrVal || urlVal || '').trim();
+
+    const repl = replacements.get(raw);
+
+    return repl
+      ? match.replace(raw, repl)
+      : match;
+  });
+}
+
+/* =========================
+   NAV INTERCEPTOR
+========================= */
+
+function makeNavInterceptor(){
+
+  const lines = [
+
+    '<scr' + 'ipt>(function(){',
+
+    'function nav(url){',
+    'if(!url)return false;',
+    'var s=String(url);',
+    'if(/^(https?:|mailto:|javascript:|data:|blob:)/i.test(s))return false;',
+    'window.parent.postMessage({type:"__nav",href:s},"*");',
+    'return true;',
+    '}',
+
+    'document.addEventListener("click",function(e){',
+    'var a=e.composedPath().find(function(n){return n&&n.tagName==="A";});',
+    'if(!a)return;',
+    'var h=a.getAttribute("href");',
+    'if(h&&!/^(https?:|mailto:|javascript:|#|data:)/i.test(h)){',
+    'e.preventDefault();',
+    'nav(h);',
+    '}',
+    '},true);',
+
+    '})();<\/script>'
+  ];
+
+  return lines.join('\n');
+}
+
+/* =========================
+   REDIRECT
+========================= */
+
+window.addEventListener('message', e => {
+
+  if(!e.data || e.data.type !== '__nav'){
+    return;
+  }
+
+  const target = e.data.href;
+
+  const clean = target
+    .split('?')[0]
+    .split('#')[0]
+    .replace(/^\//,'');
+
+  const tries = [
+    clean,
+    clean + '.html',
+    clean + '/index.html'
+  ];
+
+  for(const t of tries){
+
+    const r = resolvePath(current || '', '/' + t);
+
+    if(r){
+
+      const el = treeEl.querySelector(
+        '[data-path="' + CSS.escape(r) + '"]'
+      );
+
+      openFile(r,el);
+
+      return;
+    }
+  }
+});
+
+/* =========================
+   PREVIEW
+========================= */
+
+async function updatePreview(){
+
+  if(!current) return;
+
+  const { content } = files[current];
+
+  previewPH.style.display = 'none';
+  previewEl.style.display = 'block';
+
+  if(content !== null){
+
+    const interceptor = makeNavInterceptor();
+
+    const patched = await patchHtml(content,current);
+
+    let final;
+
+    if(/<!doctype/i.test(patched)){
+
+      final = patched.replace(
+        /(<!doctype[^>]*>)/i,
+        '$1\n' + interceptor
+      );
+
+    }else{
+
+      final = interceptor + '\n' + patched;
+    }
+
+    const blob = new Blob(
+      [final],
+      { type:'text/html' }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    previewEl.src = url;
+
+  }else{
+
+    previewEl.src = await toDataUrl(current);
+  }
+}
+
+/* =========================
+   LIVE EDIT
+========================= */
+
+let liveTimer = null;
+
+cm.on('change', () => {
+
+  if(!current || files[current]?.content === null){
+    return;
+  }
+
+  files[current].content = cm.getValue();
+
+  clearTimeout(liveTimer);
+
+  liveTimer = setTimeout(() => {
+    updatePreview();
+  },300);
+});
+
+/* =========================
+   BUTTONS
+========================= */
+
+document.getElementById('btnFS').onclick = () => {
+  previewPane.classList.toggle('fullscreen');
+};
+
+document.getElementById('btnRefresh').onclick = updatePreview;
+
+/* =========================
+   SHORTCUTS
+========================= */
+
+document.addEventListener('keydown', e => {
+
+  if(e.key === 'Escape'){
+    previewPane.classList.remove('fullscreen');
+    if(document.fullscreenElement){
+      document.exitFullscreen?.();
+    }
+  }
+
+  if(
+    (e.ctrlKey || e.metaKey) &&
+    e.key.toLowerCase() === 'f'
+  ){
+
+    e.preventDefault();
+
+    cm.execCommand('findPersistent');
+  }
+
+  if(
+    (e.ctrlKey || e.metaKey) &&
+    e.key.toLowerCase() === 'x'
+  ){
+
+    if(
+      document.activeElement &&
+      document.activeElement.closest('.CodeMirror')
+    ){
+      return;
+    }
+
+    e.preventDefault();
+
+    previewPane.classList.toggle('fullscreen');
+  }
+});
+
+  /* =========================
+   CREATE NEW HTML
+========================= */
+
+document.getElementById('btnNewHtml').onclick = () => {
+
+  let name = prompt(
+    'Nome file HTML:',
+    'index.html'
+  );
+
+  if(!name) return;
+
+  name = name.trim();
+
+  if(!name.toLowerCase().endsWith('.html')){
+    name += '.html';
+  }
+
+  if(files[name]){
+
+    alert('File già esistente');
+
+    return;
+  }
+
+  files[name] = {
+
+    content:
+`<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nuovo File</title>
+</head>
+<body>
+
+<h1>Hello World</h1>
+
+</body>
+</html>`,
+
+    file:new File(
+      [''],
+      name,
+      { type:'text/html' }
+    )
+  };
+
+  buildTree();
+
+  const el = treeEl.querySelector(
+    '[data-path="' + CSS.escape(name) + '"]'
+  );
+
+  openFile(name, el);
+};
+
+/* =========================
+   EXPORT SINGLE FILE
+========================= */
+
+document.getElementById('btnExportOne').onclick = async () => {
+
+  if(!current){
+
+    alert('Nessun file aperto');
+
+    return;
+  }
+
+  const data = files[current];
+
+  let blob;
+
+  if(data.content !== null){
+
+    blob = new Blob(
+      [data.content],
+      { type:'text/plain' }
+    );
+
+  }else{
+
+    blob = data.file;
+  }
+
+  download(
+    blob,
+    current.split('/').pop()
+  );
+};
+  
+/* =========================
+   EXPORT ZIP
+========================= */
+
+document.getElementById('btnZip').onclick = async () => {
+
+  const zip = new JSZip();
+
+  for(const path in files){
+
+    const { content, file } = files[path];
+
+    zip.file(
+      path,
+      content !== null ? content : file
+    );
+  }
+
+  const blob = await zip.generateAsync({
+    type:'blob'
+  });
+
+  download(blob,'project.zip');
+};
+
+/* =========================
+   EXPORT FOLDER
+========================= */
+
+document.getElementById('btnExportFolder').onclick = async () => {
+
+  if(!window.showDirectoryPicker){
+
+    alert('Browser non supportato');
+    return;
+  }
+
+  const dir = await window.showDirectoryPicker({
+    mode:'readwrite'
+  });
+
+  for(const path in files){
+
+    const parts = path.split('/');
+
+    let cur = dir;
+
+    for(let i=0;i<parts.length-1;i++){
+
+      cur = await cur.getDirectoryHandle(
+        parts[i],
+        { create:true }
+      );
+    }
+
+    const fh = await cur.getFileHandle(
+      parts.at(-1),
+      { create:true }
+    );
+
+    const w = await fh.createWritable();
+
+    const { content, file } = files[path];
+
+    await w.write(
+      content !== null ? content : file
+    );
+
+    await w.close();
+  }
+
+  alert('Export completato');
+};
+
+/* =========================
+   DRAG DROP
+========================= */
+
+document.addEventListener('dragover', e => {
+
+  e.preventDefault();
+
+  document.body.classList.add('drag-over');
+});
+
+['dragleave','drop'].forEach(ev => {
+
+  document.addEventListener(ev, () => {
+    document.body.classList.remove('drag-over');
+  });
+});
+
+document.addEventListener('drop', async e => {
+
+  e.preventDefault();
+
+  const all = [];
+
+  for(const item of Array.from(e.dataTransfer.items || [])){
+
+    if(item.kind !== 'file'){
+      continue;
+    }
+
+    const f = item.getAsFile();
+
+    if(f){
+      all.push(f);
+    }
+  }
+
+  if(all.length){
+    await loadFiles(all);
+  }
+});
+
+/* =========================
+   DOWNLOAD
+========================= */
+
+function download(blob,name){
+
+  const a = document.createElement('a');
+
+  a.href = URL.createObjectURL(blob);
+
+  a.download = name;
+
+  a.click();
+
+  setTimeout(() => {
+    URL.revokeObjectURL(a.href);
+  },2000);
+}
+
+</script>
+</body>
+</html>
