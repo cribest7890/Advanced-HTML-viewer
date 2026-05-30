@@ -4,7 +4,7 @@ how to use:
 
 in your ```<head>``` tag add:
 ```html
-https://cdn.jsdelivr.net/gh/cribest7890/Advanced-HTML-viewer@main/utilities/custom-switch/custom-switch.js
+<script src="https://cdn.jsdelivr.net/gh/cribest7890/Advanced-HTML-viewer@main/utilities/custom-switch/custom-switch.js" defer></script>
 ```
 after that you can use the custom switch using:
 ```html
