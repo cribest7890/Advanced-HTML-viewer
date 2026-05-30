@@ -1,7 +1,7 @@
 # Advanced HTML Viewer
 [![Static Badge](https://img.shields.io/badge/HTML5-Advanced_HTML_Viewer-red?logo=html5)](#)
 [![License](https://img.shields.io/github/license/cribest7890/Advanced-HTML-viewer
-)](#)
+)](/blob/main/LICENSE)
 [![Stars](https://img.shields.io/github/stars/cribest7890/Advanced-HTML-viewer)](#)
 [![Issues](https://img.shields.io/github/issues/cribest7890/Advanced-HTML-viewer)](#)
 
