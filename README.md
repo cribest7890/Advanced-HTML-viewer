@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/cribest7890/Advanced-HTML-viewer
 )](/LICENSE)
 [![Stars](https://img.shields.io/github/stars/cribest7890/Advanced-HTML-viewer)](https://github.com/cribest7890/Advanced-HTML-viewer/stargazers)
-[![Issues](https://img.shields.io/github/issues/cribest7890/Advanced-HTML-viewer)](#)
+[![Issues](https://img.shields.io/github/issues/cribest7890/Advanced-HTML-viewer)](https://github.com/cribest7890/Advanced-HTML-viewer/issues)
 
 Advanced HTML Viewer is a lightweight browser-based HTML project editor and viewer.
 
