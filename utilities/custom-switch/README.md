@@ -1,1 +1,39 @@
 # Custom Switch
+
+example:
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagina di Esempio</title>
+
+  <!-- 1. IMPORTA IL COMPONENTE -->
+  <script src="custom-switch.js" defer></script>
+
+  <style>
+    .switch-personalizzato {
+      --switch-bg-active: #28a745;
+      --capsule-bg-active: #1e7e34;
+      --switch-bg-inactive: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+
+  <custom-switch></custom-switch>
+  
+  <custom-switch text="ACCENDI"></custom-switch>
+  
+  <custom-switch text="SAVE" class="switch-personalizzato"></custom-switch>
+
+  <script>
+    document.querySelectorAll('custom-switch').forEach(element => {
+      element.addEventListener('switch-change', (e) => {
+        console.log(`Lo switch con testo "${element.getAttribute('text') || 'ATTIVA'}" è ora:`, e.detail.checked);
+      });
+    });
+  </script>
+
+</body>
+</html>
