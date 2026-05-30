@@ -1,5 +1,5 @@
 # Advanced HTML Viewer
-[![Static Badge](https://img.shields.io/badge/github-Advanced_HTML_Viewer-red?logo=github)](#)
+[![Static Badge](https://img.shields.io/badge/HTML5-Advanced_HTML_Viewer-red?logo=html5)](#)
 
 
 Advanced HTML Viewer is a lightweight browser-based HTML project editor and viewer.
