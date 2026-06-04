@@ -5,6 +5,7 @@
 [![Stars](https://img.shields.io/github/stars/cribest7890/Advanced-HTML-viewer)](https://github.com/cribest7890/Advanced-HTML-viewer/stargazers)
 [![Issues](https://img.shields.io/github/issues/cribest7890/Advanced-HTML-viewer)](https://github.com/cribest7890/Advanced-HTML-viewer/issues)
 
+
 Advanced HTML Viewer is a lightweight browser-based HTML project editor and viewer.
 
 It allows you to import entire HTML projects, browse files through a project tree, edit source code with syntax highlighting and autocomplete, and instantly preview changes in real time.
